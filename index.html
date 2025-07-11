@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Namaz Takip Sistemi</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    h1, h2, h3, h4 {
+      margin-bottom: 20px;
+      color: #343a40;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      margin: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #evet {
+      color: white;
+      background-color: #28a745;
+    }
+
+    #evet:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    #hayir {
+      color: white;
+      background-color: #dc3545;
+    }
+
+    #hayir:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    #skorTablosuBtn {
+      color: white;
+      background-color: #fd7e14;
+    }
+
+    #skorTablosuBtn:hover {
+      background-color: #e36209;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .sayfa {
+      display: none;
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+
+    .sayfa.aktif {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Namaz butonları */
+    .namaz-btn {
+      padding: 12px 24px;
+      margin: 8px;
+      border-radius: 30px;
+      border: none;
+      background-color: #e9ecef;
+      color: #495057;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .namaz-btn:hover {
+      background-color: #dee2e6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .namaz-btn.secili {
+      background-color: #28a745;
+      color: white;
+    }
+
+    /* Giriş formu */
+    .giris-formu {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 280px;
+      margin: 20px 0;
+    }
+
+    .form-input {
+      width: calc(100% - 30px);
+      padding: 12px 15px;
+      margin: 8px 0;
+      border-radius: 30px;
+      border: 2px solid #e9ecef;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .form-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    }
+
+    /* Gönder butonu */
+    .gonder-btn {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 30px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: not-allowed;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .gonder-btn.aktif {
+      background-color: #007bff;
+      cursor: pointer;
+    }
+
+    .gonder-btn.aktif:hover {
+      background-color: #0069d9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Sebep kutusu */
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 15px;
+      font-size: 14px;
+      border-radius: 15px;
+      border: 2px solid #e9ecef;
+      resize: none;
+      outline: none;
+      margin: 20px 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    textarea:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    }
+
+    /* Geri Butonu - SOL ÜST KÖŞEDE */
+    .geri-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #6c757d;
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .geri-btn:hover {
+      background-color: #5a6268;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Skor tablosu */
+    .skor-container {
+      width: 90%;
+      max-width: 800px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 25px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 15px;
+    }
+
+    thead {
+      background-color: #007bff;
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    th:first-child {
+      border-top-left-radius: 10px;
+    }
+
+    th:last-child {
+      border-top-right-radius: 10px;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      color: #495057;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8f9fa;
+    }
+
+    /* Skor renkleri */
+    .skor-kotu {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .skor-orta {
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    .skor-iyi {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    /* Bilgilendirme sayfası */
+    .bilgilendirme-kutusu {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+      text-align: center;
+      position: relative;
+    }
+
+    .bilgilendirme-kutusu h3 {
+      color: #28a745;
+      line-height: 1.6;
+    }
+    
+    /* Kullanıcı bilgisi */
+    .kullanici-bilgisi {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Admin butonu */
+    .admin-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #343a40;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    .admin-btn:hover {
+      background-color: #23272b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Admin giriş formu */
+    .admin-giris-formu {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 280px;
+      margin: 20px 0;
+    }
+
+    /* Hata mesajı */
+    .hata-mesaji {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #dc3545;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 30px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Onay mesajı */
+    .onay-mesaji {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 30px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    /* Kilit animasyonu */
+    .kilit-animasyon {
+      font-size: 24px;
+      margin-bottom: 15px;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: rotate(0); }
+      20% { transform: rotate(-15deg); }
+      40% { transform: rotate(15deg); }
+      60% { transform: rotate(-10deg); }
+      80% { transform: rotate(10deg); }
+    }
+
+    /* Hesaplar listesi */
+    .liste-container {
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 15px 0;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .liste-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .liste-item:last-child {
+      border-bottom: none;
+    }
+
+    .sil-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .sil-btn:hover {
+      background-color: #c82333;
+      transform: scale(1.05);
+    }
+
+    /* Admin sayfası */
+    .admin-sayfa-container {
+      width: 90%;
+      max-width: 800px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      margin-top: 20px;
+    }
+
+    .admin-geri-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .admin-islem-btn {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      background-color: #17a2b8;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .admin-islem-btn:hover {
+      background-color: #138496;
+    }
+
+    .admin-islem-btn.kirmizi {
+      background-color: #dc3545;
+    }
+
+    .admin-islem-btn.kirmizi:hover {
+      background-color: #c82333;
+    }
+
+    .toggle-btn {
+      background-color: #dc3545; /* Kırmızı renk */
+      margin-bottom: 15px;
+    }
+
+    .toggle-btn:hover {
+      background-color: #c82333; /* Daha koyu kırmızı */
+    }
+
+    .skor-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .skor-bilgi {
+      flex: 1;
+    }
+
+    .skor-tarih {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .skor-durum {
+      font-size: 0.9em;
+      color: #6c757d;
+    }
+
+    /* Onay kutusu stilini güncelle */
+    .onay-kutusu {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .onay-kutusu h3 {
+      color: #dc3545;
+      margin-bottom: 25px;
+      font-size: 1.2em;
+    }
+
+    .onay-btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .onay-btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .onay-btn-tamam {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .onay-btn-tamam:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+
+    .onay-btn-iptal {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .onay-btn-iptal:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+    }
+
+    /* Admin çıkış butonu */
+    .admin-cikis-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #dc3545; /* Kırmızı renk */
+      color: white;
+      padding: 10px 15px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+      display: none;
+    }
+
+    .admin-cikis-btn:hover {
+      background-color: #c82333; /* Daha koyu kırmızı */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Kullanıcı çıkış butonu */
+    .kullanici-cikis-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #343a40; /* Siyah renk */
+      color: white;
+      padding: 10px 15px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+      display: none;
+    }
+
+    .kullanici-cikis-btn:hover {
+      background-color: #23272b; /* Daha koyu siyah */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Şifre değiştirme formu */
+    .sifre-degistirme-formu {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Giriş Sayfası -->
+  <div id="girisSayfasi" class="sayfa">
+    <div class="container">
+      <h1>Namaz Takip Sistemine Hoş Geldiniz</h1>
+      <div class="giris-formu">
+        <h2>Giriş Yap</h2>
+        <input type="text" id="kullaniciAdi" class="form-input" placeholder="Kullanıcı Adı">
+        <input type="password" id="sifre" class="form-input" placeholder="Şifre" style="margin-top: 10px;">
+        <button id="girisYapBtn" class="btn" style="width: 100%; background-color: #007bff; margin-top: 15px;" onclick="girisYap()">Giriş Yap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ana Sayfa (Evet/Hayır butonları) -->
+  <div id="anaEkran" class="sayfa">
+    <div id="kullaniciAdiGoster" class="kullanici-bilgisi"></div>
+    <div class="container">
+      <h1>Bugün namaz kıldın mı?</h1>
+      <div class="btn-container">
+        <button id="evet" class="btn">Evet</button>
+        <button id="hayir" class="btn">Hayır</button>
+        <button id="skorTablosuBtn" class="btn" onclick="skorTablosunuGoster()">Skor Tablosu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hayır Sayfası -->
+  <div id="hayirSayfasi" class="sayfa">
+    <button class="geri-btn" onclick="geriDon('anaEkran')">← Geri Dön</button>
+    <div class="container">
+      <h2>Neden kılmadın?</h2>
+      <textarea id="nedenText" placeholder="Sebebini yaz..."></textarea><br>
+      <button id="hayirGonderBtn" class="gonder-btn" onclick="gonderHayir()" disabled>Gönder</button>
+    </div>
+  </div>
+
+  <!-- Bilgilendirme Sayfası -->
+  <div id="bilgilendirme" class="sayfa">
+    <button class="geri-btn" onclick="geriDon('anaEkran')">← Geri Dön</button>
+    <div class="container">
+      <div class="bilgilendirme-kutusu">
+        <h3>Namaz, Allah'a yakınlaşmak için bir vesiledir.<br>Günün belirli zamanlarında dua ve huzurla dolmak içindir.<br>Kılmayı unutma 🙂</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evet Sayfası -->
+  <div id="evetSayfasi" class="sayfa">
+    <button class="geri-btn" onclick="geriDon('anaEkran')">← Geri Dön</button>
+    <div class="container">
+      <h2>Hangi vakitleri kıldın?</h2>
+      <div id="namazlar" class="btn-container">
+        <button class="namaz-btn" data-namaz="Sabah">Sabah</button>
+        <button class="namaz-btn" data-namaz="Öğle">Öğle</button>
+        <button class="namaz-btn" data-namaz="İkindi">İkindi</button>
+        <button class="namaz-btn" data-namaz="Akşam">Akşam</button>
+        <button class="namaz-btn" data-namaz="Yatsı">Yatsı</button>
+      </div>
+      <button id="evetGonderBtn" class="gonder-btn" onclick="gonderEvet()" disabled>Gönder</button>
+    </div>
+  </div>
+
+  <!-- Skor Sayfası -->
+  <div id="skorSayfasi" class="sayfa">
+    <button class="geri-btn" onclick="geriDon('anaEkran')">← Geri Dön</button>
+    <div class="container">
+      <h2>Namaz Takip Tablosu</h2>
+      <div class="skor-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Kullanıcı</th>
+              <th>Tarih</th>
+              <th>Skor</th>
+              <th>Kıldığı Vakitler</th>
+            </tr>
+          </thead>
+          <tbody id="skorlar"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Giriş Sayfası -->
+  <div id="adminGirisSayfasi" class="sayfa">
+    <button class="geri-btn" onclick="geriDon('anaEkran')">← Geri Dön</button>
+    <div class="container">
+      <div class="admin-giris-formu">
+        <div id="kilitAnimasyon" class="kilit-animasyon">🔒</div>
+        <h2>Admin Girişi</h2>
+        <input type="password" id="adminSifre" class="form-input" placeholder="Admin Şifresi">
+        <button id="adminGirisBtn" class="btn" style="width: 100%; background-color: #dc3545; margin-top: 15px;" onclick="adminGiris()">Giriş Yap</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Sayfası -->
+  <div id="adminSayfasi" class="sayfa">
+    <button class="admin-geri-btn" onclick="geriDon('anaEkran')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+      Geri Dön
+    </button>
+    <div class="container">
+      <div class="admin-sayfa-container">
+        <h2>Admin Paneli</h2>
+        <button class="admin-islem-btn toggle-btn" onclick="toggleAdminIcerik('hesaplar')">Hesapları Göster/Gizle</button>
+        <button class="admin-islem-btn toggle-btn" onclick="toggleAdminIcerik('skorlar')">Skorları Göster/Gizle</button>
+        <button class="admin-islem-btn toggle-btn" onclick="toggleAdminIcerik('sifreDegistir')">Admin Şifresini Değiştir</button>
+        
+        <div id="hesaplarIcerik" style="display: none;">
+          <h3>Kayıtlı Hesaplar</h3>
+          <div id="hesaplarListesi" class="liste-container"></div>
+        </div>
+        
+        <div id="skorlarIcerik" style="display: none;">
+          <h3>Kayıtlı Skorlar</h3>
+          <div id="skorlarListesi" class="liste-container"></div>
+        </div>
+
+        <div id="sifreDegistirIcerik" style="display: none;">
+          <h3>Admin Şifresini Değiştir</h3>
+          <div class="sifre-degistirme-formu">
+            <input type="password" id="eskiSifre" class="form-input" placeholder="Eski Şifre">
+            <input type="password" id="yeniSifre" class="form-input" placeholder="Yeni Şifre" style="margin-top: 10px;">
+            <input type="password" id="yeniSifreTekrar" class="form-input" placeholder="Yeni Şifre (Tekrar)" style="margin-top: 10px;">
+            <button class="admin-islem-btn" onclick="adminSifreDegistir()" style="margin-top: 15px;">Şifreyi Değiştir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onay Kutusu (Silme işlemleri için) -->
+  <div id="onayKutusu" class="sayfa" style="background-color: rgba(0,0,0,0.5);">
+    <div class="container">
+      <div class="onay-kutusu">
+        <h3 id="onayMesaji">Mesaj buraya gelecek</h3>
+        <div class="onay-btn-container">
+          <button class="onay-btn onay-btn-tamam" onclick="onaylaSilme()">Tamam</button>
+          <button class="onay-btn onay-btn-iptal" onclick="iptalSilme()">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Butonu -->
+  <div class="admin-btn" onclick="adminPanelToggle()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+    </svg>
+    <span>Admin</span>
+  </div>
+
+  <!-- Admin Çıkış Butonu -->
+  <div id="adminCikisBtn" class="admin-cikis-btn" onclick="adminCikisYap()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+      <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+    </svg>
+    <span>Çıkış Yap</span>
+  </div>
+
+  <!-- Kullanıcı Çıkış Butonu -->
+  <div id="kullaniciCikisBtn" class="kullanici-cikis-btn" onclick="kullaniciCikisYap()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+      <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+    </svg>
+    <span>Çıkış Yap</span>
+  </div>
+
+  <!-- Hata Mesajı -->
+  <div id="hataMesaji" class="hata-mesaji"></div>
+
+  <!-- Onay Mesajı -->
+  <div id="onayMesaji" class="onay-mesaji"></div>
+
+  <script>
+    // Kullanıcı bilgisi
+    let aktifKullanici = null;
+    let adminGirisYapildi = false;
+    const DEFAULT_ADMIN_SIFRE = "admin31";
+    let adminSifre = localStorage.getItem('adminSifre') || DEFAULT_ADMIN_SIFRE;
+    
+    // Silme işlemleri için geçici veri
+    let silinecekKullanici = null;
+    let silinecekTarih = null;
+
+    // Sayfa yönetimi fonksiyonları
+    function sayfalariGizle() {
+      document.querySelectorAll('.sayfa').forEach(div => div.classList.remove('aktif'));
+    }
+
+    function geriDon(hedefSayfa) {
+      sayfalariGizle();
+      document.getElementById(hedefSayfa).classList.add("aktif");
+      cikisButonlariniGuncelle();
+    }
+
+    // Çıkış butonlarını güncelle
+    function cikisButonlariniGuncelle() {
+      const adminCikisBtn = document.getElementById('adminCikisBtn');
+      const kullaniciCikisBtn = document.getElementById('kullaniciCikisBtn');
+      
+      // Sadece admin sayfasında admin çıkış butonu göster
+      if (document.getElementById('adminSayfasi').classList.contains('aktif') && adminGirisYapildi) {
+        adminCikisBtn.style.display = 'flex';
+        kullaniciCikisBtn.style.display = 'none';
+      } 
+      // Ana ekran, skor sayfası vb. sayfalarda kullanıcı çıkış butonu göster
+      else if (aktifKullanici && !adminGirisYapildi && 
+              (document.getElementById('anaEkran').classList.contains('aktif') ||
+               document.getElementById('skorSayfasi').classList.contains('aktif') ||
+               document.getElementById('evetSayfasi').classList.contains('aktif') ||
+               document.getElementById('hayirSayfasi').classList.contains('aktif') ||
+               document.getElementById('bilgilendirme').classList.contains('aktif'))) {
+        adminCikisBtn.style.display = 'none';
+        kullaniciCikisBtn.style.display = 'flex';
+      } 
+      // Diğer durumlarda ikisini de gizle
+      else {
+        adminCikisBtn.style.display = 'none';
+        kullaniciCikisBtn.style.display = 'none';
+      }
+    }
+
+    // Skor tablosunu göster
+    function skorTablosunuGoster() {
+      sayfalariGizle();
+      document.getElementById("skorSayfasi").classList.add("aktif");
+      tumSkorlariYukle();
+      cikisButonlariniGuncelle();
+    }
+
+    // Mesaj göster
+    function mesajGoster(tur, mesaj) {
+      const mesajDiv = document.getElementById(tur === 'hata' ? 'hataMesaji' : 'onayMesaji');
+      mesajDiv.textContent = mesaj;
+      mesajDiv.style.display = 'block';
+      
+      setTimeout(() => {
+        mesajDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    // Admin paneli aç/kapa
+    function adminPanelToggle() {
+      if (!adminGirisYapildi) {
+        sayfalariGizle();
+        document.getElementById("adminGirisSayfasi").classList.add("aktif");
+        cikisButonlariniGuncelle();
+        return;
+      }
+      
+      sayfalariGizle();
+      document.getElementById("adminSayfasi").classList.add("aktif");
+      adminIcerikYukle();
+      cikisButonlariniGuncelle();
+    }
+
+    // Admin çıkış yap
+    function adminCikisYap() {
+      adminGirisYapildi = false;
+      localStorage.removeItem('adminOturum');
+      mesajGoster('onay', 'Admin oturumu sonlandırıldı');
+      geriDon('anaEkran');
+    }
+
+    // Kullanıcı çıkış yap
+    function kullaniciCikisYap() {
+      aktifKullanici = null;
+      localStorage.removeItem('hatirlananKullanici');
+      sayfalariGizle();
+      document.getElementById("girisSayfasi").classList.add("aktif");
+      document.getElementById("kullaniciAdi").value = "";
+      document.getElementById("sifre").value = "";
+      cikisButonlariniGuncelle();
+    }
+
+    // Admin içerik yükle
+    function adminIcerikYukle() {
+      hesaplariYukle();
+      skorlariYukle();
+    }
+
+    // Admin içerik toggle
+    function toggleAdminIcerik(tur) {
+      const icerik = document.getElementById(tur + 'Icerik');
+      icerik.style.display = icerik.style.display === 'none' ? 'block' : 'none';
+      
+      // Şifre değiştirme formunu göster
+      if (tur === 'sifreDegistir') {
+        document.querySelector('.sifre-degistirme-formu').style.display = 'block';
+      }
+    }
+
+    // Hesapları yükle
+    function hesaplariYukle() {
+      const hesaplar = JSON.parse(localStorage.getItem('hatirlananKullanici')) || [];
+      const hesaplarListesi = document.getElementById('hesaplarListesi');
+      
+      if (!hesaplar || (Array.isArray(hesaplar) && hesaplar.length === 0)) {
+        hesaplarListesi.innerHTML = '<p style="text-align: center; color: #6c757d;">Kayıtlı hesap bulunamadı!</p>';
+        return;
+      }
+      
+      hesaplarListesi.innerHTML = '';
+      
+      // Tek bir kullanıcı varsa
+      if (!Array.isArray(hesaplar)) {
+        const hesapItem = document.createElement('div');
+        hesapItem.className = 'liste-item';
+        hesapItem.innerHTML = `
+          <div>
+            <strong>Kullanıcı:</strong> ${hesaplar.kullaniciAdi}<br>
+            <strong>Şifre:</strong> ${hesaplar.sifre}
+          </div>
+          <div>
+            <button class="sil-btn" onclick="hesapSilOnay('${hesaplar.kullaniciAdi}')">Sil</button>
+          </div>
+        `;
+        hesaplarListesi.appendChild(hesapItem);
+      } else {
+        // Birden fazla kullanıcı varsa
+        hesaplar.forEach(hesap => {
+          const hesapItem = document.createElement('div');
+          hesapItem.className = 'liste-item';
+          hesapItem.innerHTML = `
+            <div>
+              <strong>Kullanıcı:</strong> ${hesap.kullaniciAdi}<br>
+              <strong>Şifre:</strong> ${hesap.sifre}
+            </div>
+            <div>
+              <button class="sil-btn" onclick="hesapSilOnay('${hesap.kullaniciAdi}')">Sil</button>
+            </div>
+          `;
+          hesaplarListesi.appendChild(hesapItem);
+        });
+      }
+    }
+
+    // Skorları yükle (admin paneli için)
+    function skorlariYukle() {
+      const kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      const skorlarListesi = document.getElementById('skorlarListesi');
+      
+      if (kayitlar.length === 0) {
+        skorlarListesi.innerHTML = '<p style="text-align: center; color: #6c757d;">Kayıtlı skor bulunamadı!</p>';
+        return;
+      }
+      
+      skorlarListesi.innerHTML = '';
+      
+      // Skorları kullanıcıya göre grupla
+      const skorGruplari = {};
+      kayitlar.forEach(kayit => {
+        if (!skorGruplari[kayit.kullanici]) {
+          skorGruplari[kayit.kullanici] = [];
+        }
+        skorGruplari[kayit.kullanici].push(kayit);
+      });
+      
+      // Her kullanıcı için bir bölüm oluştur
+      Object.keys(skorGruplari).forEach(kullanici => {
+        const kullaniciBaslik = document.createElement('h4');
+        kullaniciBaslik.textContent = kullanici;
+        skorlarListesi.appendChild(kullaniciBaslik);
+        
+        // Kullanıcının skorlarını ekle
+        skorGruplari[kullanici].forEach(kayit => {
+          const skorItem = document.createElement('div');
+          skorItem.className = 'skor-item';
+          
+          // Skor renk belirle
+          let skorClass = 'skor-kotu';
+          if (kayit.skor >= 3 && kayit.skor <= 4) skorClass = 'skor-orta';
+          if (kayit.skor === 5) skorClass = 'skor-iyi';
+          
+          skorItem.innerHTML = `
+            <div class="skor-bilgi">
+              <span class="skor-tarih">${kayit.tarih}</span>
+              <span class="${skorClass}">${kayit.skor || '0'} vakit</span>
+              <div class="skor-durum">${kayit.durum === "Kıldı" ? kayit.namazlar.join(', ') : kayit.aciklama || 'Sebep belirtilmemiş'}</div>
+            </div>
+            <button class="sil-btn" onclick="skorSilOnay('${kayit.kullanici}', '${kayit.tarih}')">Sil</button>
+          `;
+          skorlarListesi.appendChild(skorItem);
+        });
+      });
+    }
+
+    // Tüm skorları yükle (kullanıcılar için)
+    function tumSkorlariYukle() {
+      const kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      const tbody = document.getElementById("skorlar");
+      tbody.innerHTML = '';
+      
+      if (kayitlar.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="4" style="text-align: center;">Henüz kayıt bulunmamaktadır</td>';
+        tbody.appendChild(tr);
+        return;
+      }
+      
+      // Tarihe göre sırala (yeniden eskiye)
+      kayitlar.sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+      
+      kayitlar.forEach(kayit => {
+        const tr = document.createElement("tr");
+        
+        // Skor değerine göre renk belirle
+        let skorClass = 'skor-kotu';
+        if (kayit.skor >= 3 && kayit.skor <= 4) skorClass = 'skor-orta';
+        if (kayit.skor === 5) skorClass = 'skor-iyi';
+        
+        // Kıldığı vakitleri veya açıklamayı göster
+        let detay = kayit.durum === "Kıldı" ? kayit.namazlar.join(', ') : kayit.aciklama;
+        
+        tr.innerHTML = `
+          <td>${kayit.kullanici}</td>
+          <td>${kayit.tarih}</td>
+          <td class="${skorClass}">${kayit.skor || '-'}</td>
+          <td>${detay}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Admin giriş işlemi
+    function adminGiris() {
+      const girilenSifre = document.getElementById("adminSifre").value;
+      const kilitAnimasyon = document.getElementById('kilitAnimasyon');
+      
+      if (girilenSifre === adminSifre) {
+        adminGirisYapildi = true;
+        localStorage.setItem('adminOturum', 'true');
+        document.getElementById("adminSifre").value = "";
+        kilitAnimasyon.textContent = "🔓";
+        kilitAnimasyon.style.color = "#28a745";
+        setTimeout(() => {
+          adminPanelToggle();
+        }, 800);
+      } else {
+        kilitAnimasyon.textContent = "🔒";
+        kilitAnimasyon.style.color = "#dc3545";
+        kilitAnimasyon.classList.add('kilit-animasyon');
+        setTimeout(() => {
+          kilitAnimasyon.classList.remove('kilit-animasyon');
+        }, 500);
+        mesajGoster('hata', "Hatalı şifre! Lütfen tekrar deneyin.");
+      }
+    }
+
+    // Admin şifre değiştirme
+    function adminSifreDegistir() {
+      const eskiSifre = document.getElementById('eskiSifre').value;
+      const yeniSifre = document.getElementById('yeniSifre').value;
+      const yeniSifreTekrar = document.getElementById('yeniSifreTekrar').value;
+      
+      if (eskiSifre !== adminSifre) {
+        mesajGoster('hata', 'Eski şifre hatalı!');
+        return;
+      }
+      
+      if (yeniSifre.length < 4) {
+        mesajGoster('hata', 'Yeni şifre en az 4 karakter olmalıdır!');
+        return;
+      }
+      
+      if (yeniSifre !== yeniSifreTekrar) {
+        mesajGoster('hata', 'Yeni şifreler uyuşmuyor!');
+        return;
+      }
+      
+      adminSifre = yeniSifre;
+      localStorage.setItem('adminSifre', yeniSifre);
+      document.getElementById('eskiSifre').value = '';
+      document.getElementById('yeniSifre').value = '';
+      document.getElementById('yeniSifreTekrar').value = '';
+      mesajGoster('onay', 'Admin şifresi başarıyla değiştirildi!');
+    }
+
+    // Hesap silme onayı
+    function hesapSilOnay(kullaniciAdi) {
+      silinecekKullanici = kullaniciAdi;
+      silinecekTarih = null;
+      
+      document.getElementById('onayMesaji').textContent = `${kullaniciAdi} kullanıcısını silmek istediğinize emin misiniz?`;
+      sayfalariGizle();
+      document.getElementById('onayKutusu').classList.add('aktif');
+    }
+
+    // Skor silme onayı
+    function skorSilOnay(kullanici, tarih) {
+      silinecekKullanici = kullanici;
+      silinecekTarih = tarih;
+      
+      document.getElementById('onayMesaji').textContent = `${kullanici} kullanıcısının ${tarih} tarihli kaydını silmek istediğinize emin misiniz?`;
+      sayfalariGizle();
+      document.getElementById('onayKutusu').classList.add('aktif');
+    }
+
+    // Silme işlemini onayla
+    function onaylaSilme() {
+      if (silinecekTarih) {
+        skorSil(silinecekKullanici, silinecekTarih);
+      } else {
+        hesapSil(silinecekKullanici);
+      }
+      iptalSilme();
+    }
+
+    // Silme işlemini iptal et
+    function iptalSilme() {
+      silinecekKullanici = null;
+      silinecekTarih = null;
+      sayfalariGizle();
+      document.getElementById('adminSayfasi').classList.add('aktif');
+    }
+
+    // Hesap silme
+    function hesapSil(kullaniciAdi) {
+      let hesaplar = JSON.parse(localStorage.getItem('hatirlananKullanici')) || [];
+      
+      if (!Array.isArray(hesaplar)) {
+        if (hesaplar.kullaniciAdi === kullaniciAdi) {
+          localStorage.removeItem('hatirlananKullanici');
+        }
+      } else {
+        hesaplar = hesaplar.filter(hesap => hesap.kullaniciAdi !== kullaniciAdi);
+        localStorage.setItem('hatirlananKullanici', JSON.stringify(hesaplar));
+      }
+      
+      // Namaz kayıtlarını da sil
+      let kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      kayitlar = kayitlar.filter(kayit => kayit.kullanici !== kullaniciAdi);
+      localStorage.setItem('namazKayitlari', JSON.stringify(kayitlar));
+      
+      mesajGoster('onay', "Hesap başarıyla silindi!");
+      hesaplariYukle();
+      skorlariYukle();
+    }
+
+    // Skor silme
+    function skorSil(kullanici, tarih) {
+      let kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      kayitlar = kayitlar.filter(kayit => !(kayit.kullanici === kullanici && kayit.tarih === tarih));
+      localStorage.setItem('namazKayitlari', JSON.stringify(kayitlar));
+      
+      mesajGoster('onay', "Skor başarıyla silindi!");
+      skorlariYukle();
+    }
+
+    // Giriş işlemleri
+    function girisYap() {
+      const kullaniciAdi = document.getElementById("kullaniciAdi").value.trim();
+      const sifre = document.getElementById("sifre").value.trim();
+
+      if (kullaniciAdi.length < 3) {
+        mesajGoster('hata', "Lütfen en az 3 karakterli bir kullanıcı adı girin");
+        return;
+      }
+
+      if (sifre.length < 4) {
+        mesajGoster('hata', "Şifre en az 4 karakter olmalıdır");
+        return;
+      }
+
+      aktifKullanici = kullaniciAdi;
+      // Kullanıcı bilgilerini kaydet
+      const kullaniciBilgisi = {
+        kullaniciAdi: kullaniciAdi,
+        sifre: sifre
+      };
+      
+      // Var olan hesapları al
+      let hesaplar = JSON.parse(localStorage.getItem('hatirlananKullanici')) || [];
+      
+      // Eğer hesaplar dizisi değilse, diziye çevir
+      if (!Array.isArray(hesaplar)) {
+        if (hesaplar && hesaplar.kullaniciAdi) {
+          hesaplar = [hesaplar];
+        } else {
+          hesaplar = [];
+        }
+      }
+      
+      // Aynı kullanıcı adı var mı kontrol et
+      const kullaniciIndex = hesaplar.findIndex(hesap => hesap.kullaniciAdi === kullaniciAdi);
+      
+      if (kullaniciIndex !== -1) {
+        // Kullanıcı varsa güncelle
+        hesaplar[kullaniciIndex] = kullaniciBilgisi;
+      } else {
+        // Yeni kullanıcı ekle
+        hesaplar.push(kullaniciBilgisi);
+      }
+      
+      localStorage.setItem('hatirlananKullanici', JSON.stringify(hesaplar));
+      
+      // Ana sayfaya yönlendir
+      anaSayfayaYonlendir();
+    }
+
+    function anaSayfayaYonlendir() {
+      // Kullanıcı adını göster
+      document.getElementById('kullaniciAdiGoster').textContent = aktifKullanici;
+      
+      sayfalariGizle();
+      document.getElementById("anaEkran").classList.add("aktif");
+      
+      // Kullanıcının önceki kayıtlarını yükle
+      tumSkorlariYukle();
+      cikisButonlariniGuncelle();
+    }
+
+    // Ana sayfa butonları
+    document.getElementById("hayir").onclick = () => {
+      sayfalariGizle();
+      document.getElementById("hayirSayfasi").classList.add("aktif");
+      cikisButonlariniGuncelle();
+    };
+
+    document.getElementById("evet").onclick = () => {
+      sayfalariGizle();
+      document.getElementById("evetSayfasi").classList.add("aktif");
+      
+      // Seçili namazları ve gönder butonunu sıfırla
+      document.querySelectorAll('.namaz-btn').forEach(btn => {
+        btn.classList.remove('secili');
+      });
+      document.getElementById('evetGonderBtn').disabled = true;
+      document.getElementById('evetGonderBtn').classList.remove('aktif');
+      cikisButonlariniGuncelle();
+    };
+
+    // Hayır sayfası işlemleri
+    const nedenInput = document.getElementById("nedenText");
+    const hayirBtn = document.getElementById("hayirGonderBtn");
+
+    nedenInput.addEventListener("input", () => {
+      const yazi = nedenInput.value.trim();
+      if (yazi.length >= 8) {
+        hayirBtn.disabled = false;
+        hayirBtn.classList.add("aktif");
+      } else {
+        hayirBtn.disabled = true;
+        hayirBtn.classList.remove("aktif");
+      }
+    });
+
+    function gonderHayir() {
+      const neden = nedenInput.value.trim();
+      if (neden.length < 8) return;
+
+      // Kayıt oluştur
+      const kayit = {
+        kullanici: aktifKullanici,
+        tarih: new Date().toLocaleDateString(),
+        skor: 0,
+        durum: "Kılmadı",
+        aciklama: neden
+      };
+
+      kaydetKayit(kayit);
+
+      sayfalariGizle();
+      document.getElementById("bilgilendirme").classList.add("aktif");
+
+      // Temizle
+      nedenInput.value = "";
+      hayirBtn.disabled = true;
+      hayirBtn.classList.remove("aktif");
+      cikisButonlariniGuncelle();
+    }
+
+    // Evet sayfası işlemleri
+    const namazBtnlar = document.querySelectorAll('.namaz-btn');
+    const evetGonderBtn = document.getElementById('evetGonderBtn');
+    let seciliNamazlar = [];
+
+    // Namaz butonlarına tıklama olayı
+    namazBtnlar.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('secili');
+        
+        // Seçili namazları güncelle
+        seciliNamazlar = Array.from(document.querySelectorAll('.namaz-btn.secili'))
+                          .map(btn => btn.getAttribute('data-namaz'));
+        
+        // Gönder butonunu kontrol et
+        kontrolGonderButonu();
+      });
+    });
+
+    function kontrolGonderButonu() {
+      if (seciliNamazlar.length > 0) {
+        evetGonderBtn.disabled = false;
+        evetGonderBtn.classList.add('aktif');
+      } else {
+        evetGonderBtn.disabled = true;
+        evetGonderBtn.classList.remove('aktif');
+      }
+    }
+
+    // Skor tablosu işlemleri
+    function gonderEvet() {
+      if (seciliNamazlar.length === 0) return;
+
+      const skor = seciliNamazlar.length;
+      
+      // Kayıt oluştur
+      const kayit = {
+        kullanici: aktifKullanici,
+        tarih: new Date().toLocaleDateString(),
+        skor: skor,
+        durum: "Kıldı",
+        namazlar: seciliNamazlar
+      };
+
+      kaydetKayit(kayit);
+
+      sayfalariGizle();
+      document.getElementById("skorSayfasi").classList.add("aktif");
+      
+      // Skorları yenile
+      tumSkorlariYukle();
+      cikisButonlariniGuncelle();
+    }
+
+    // Kayıtları localStorage'a kaydet
+    function kaydetKayit(yeniKayit) {
+      let kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      
+      // Aynı gün için kayıt var mı kontrol et
+      const bugun = new Date().toLocaleDateString();
+      kayitlar = kayitlar.filter(kayit => 
+        !(kayit.kullanici === aktifKullanici && kayit.tarih === bugun)
+      );
+      
+      kayitlar.push(yeniKayit);
+      localStorage.setItem('namazKayitlari', JSON.stringify(kayitlar));
+    }
+
+    // Sayfa yüklendiğinde kontrol et
+    window.onload = function() {
+      // Admin oturum kontrolü
+      if (localStorage.getItem('adminOturum') === 'true') {
+        adminGirisYapildi = true;
+      }
+      
+      // Admin şifresini yükle
+      if (localStorage.getItem('adminSifre')) {
+        adminSifre = localStorage.getItem('adminSifre');
+      }
+      
+      const hatirlananKullanici = localStorage.getItem('hatirlananKullanici');
+      
+      if (hatirlananKullanici) {
+        try {
+          const kullaniciBilgisi = JSON.parse(hatirlananKullanici);
+          // Eğer dizi ise son kullanıcıyı al
+          if (Array.isArray(kullaniciBilgisi) && kullaniciBilgisi.length > 0) {
+            aktifKullanici = kullaniciBilgisi[kullaniciBilgisi.length - 1].kullaniciAdi;
+          } else if (kullaniciBilgisi.kullaniciAdi) {
+            aktifKullanici = kullaniciBilgisi.kullaniciAdi;
+          }
+          anaSayfayaYonlendir();
+        } catch (e) {
+          console.error("Kullanıcı bilgisi okunamadı:", e);
+        }
+      } else {
+        // Eğer kayıtlı kullanıcı yoksa giriş sayfasını göster
+        sayfalariGizle();
+        document.getElementById("girisSayfasi").classList.add("aktif");
+      }
+      
+      cikisButonlariniGuncelle();
+    };
+  </script>
+</body>
+</html>
