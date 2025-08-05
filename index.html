@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Namaz Takip Sistemi</title>
   <style>
     html, body {
@@ -17,10 +18,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100%;
+      min-height: 100%;
       text-align: center;
       padding: 20px;
       position: relative;
+      box-sizing: border-box;
     }
 
     h1, h2, h3, h4 {
@@ -82,9 +84,10 @@
 
     .sayfa {
       display: none;
-      height: 100%;
+      min-height: 100%;
       width: 100%;
       position: relative;
+      box-sizing: border-box;
     }
 
     .sayfa.aktif {
@@ -339,6 +342,7 @@
       transition: all 0.3s ease;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 100;
+      display: none; /* Başlangıçta gizli */
     }
 
     .admin-btn:hover {
@@ -499,12 +503,12 @@
     }
 
     .toggle-btn {
-      background-color: #dc3545; /* Kırmızı renk */
+      background-color: #dc3545;
       margin-bottom: 15px;
     }
 
     .toggle-btn:hover {
-      background-color: #c82333; /* Daha koyu kırmızı */
+      background-color: #c82333;
     }
 
     .skor-item {
@@ -586,7 +590,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #dc3545; /* Kırmızı renk */
+      background-color: #dc3545;
       color: white;
       padding: 10px 15px;
       border-radius: 30px;
@@ -601,7 +605,7 @@
     }
 
     .admin-cikis-btn:hover {
-      background-color: #c82333; /* Daha koyu kırmızı */
+      background-color: #c82333;
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
@@ -611,7 +615,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #343a40; /* Siyah renk */
+      background-color: #343a40;
       color: white;
       padding: 10px 15px;
       border-radius: 30px;
@@ -626,7 +630,7 @@
     }
 
     .kullanici-cikis-btn:hover {
-      background-color: #23272b; /* Daha koyu siyah */
+      background-color: #23272b;
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
@@ -640,12 +644,86 @@
       margin-top: 20px;
       display: none;
     }
+
+    /* Responsive tasarım için medya sorguları */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 5px;
+      }
+      
+      .btn-container {
+        gap: 10px;
+        flex-direction: column;
+      }
+      
+      .skor-container {
+        width: 95%;
+        padding: 15px;
+      }
+      
+      th, td {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      
+      .kullanici-bilgisi {
+        top: 10px;
+        right: 10px;
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+      
+      .admin-btn, .admin-cikis-btn, .kullanici-cikis-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      
+      .geri-btn {
+        top: 10px;
+        left: 10px;
+        padding: 6px 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .giris-formu, .admin-giris-formu {
+        padding: 15px;
+      }
+      
+      .form-input {
+        padding: 10px 12px;
+      }
+      
+      .namaz-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+      
+      textarea {
+        height: 80px;
+        padding: 10px;
+      }
+      
+      .bilgilendirme-kutusu {
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- Giriş Sayfası -->
-  <div id="girisSayfasi" class="sayfa">
+  <div id="girisSayfasi" class="sayfa aktif">
     <div class="container">
       <h1>Namaz Takip Sistemine Hoş Geldiniz</h1>
       <div class="giris-formu">
@@ -847,8 +925,16 @@
 
     // Çıkış butonlarını güncelle
     function cikisButonlariniGuncelle() {
+      const adminBtn = document.querySelector('.admin-btn');
       const adminCikisBtn = document.getElementById('adminCikisBtn');
       const kullaniciCikisBtn = document.getElementById('kullaniciCikisBtn');
+      
+      // Admin butonunu sadece giriş yapılmışsa göster
+      if (aktifKullanici) {
+        adminBtn.style.display = 'flex';
+      } else {
+        adminBtn.style.display = 'none';
+      }
       
       // Sadece admin sayfasında admin çıkış butonu göster
       if (document.getElementById('adminSayfasi').classList.contains('aktif') && adminGirisYapildi) {
