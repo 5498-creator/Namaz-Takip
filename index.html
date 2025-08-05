@@ -1030,59 +1030,51 @@
 
     // Hesapları yükle
     function hesaplariYukle() {
-      const hesaplar = JSON.parse(localStorage.getItem('hatirlananKullanici')) || [];
+      let hesaplar = JSON.parse(localStorage.getItem('hatirlananKullanici')) || [];
       const hesaplarListesi = document.getElementById('hesaplarListesi');
       
-      if (!hesaplar || (Array.isArray(hesaplar) && hesaplar.length === 0)) {
+      // Eğer hesaplar dizi değilse, diziye çevir
+      if (!Array.isArray(hesaplar)) {
+        if (hesaplar && hesaplar.kullaniciAdi) {
+          hesaplar = [hesaplar];
+        } else {
+          hesaplar = [];
+        }
+      }
+      
+      if (hesaplar.length === 0) {
         hesaplarListesi.innerHTML = '<p style="text-align: center; color: #6c757d;">Kayıtlı hesap bulunamadı!</p>';
         return;
       }
       
       hesaplarListesi.innerHTML = '';
       
-      // Tek bir kullanıcı varsa
-      if (!Array.isArray(hesaplar)) {
+      hesaplar.forEach(hesap => {
         const hesapItem = document.createElement('div');
         hesapItem.className = 'liste-item';
         hesapItem.innerHTML = `
           <div>
-            <strong>Kullanıcı:</strong> ${hesaplar.kullaniciAdi}<br>
-            <strong>Şifre:</strong> ${hesaplar.sifre}
+            <strong>Kullanıcı:</strong> ${hesap.kullaniciAdi}<br>
+            <strong>Şifre:</strong> ${hesap.sifre}
           </div>
           <div>
-            <button class="sil-btn" onclick="hesapSilOnay('${hesaplar.kullaniciAdi}')">Sil</button>
+            <button class="sil-btn" onclick="hesapSilOnay('${hesap.kullaniciAdi}')">Sil</button>
           </div>
         `;
         hesaplarListesi.appendChild(hesapItem);
-      } else {
-        // Birden fazla kullanıcı varsa
-        hesaplar.forEach(hesap => {
-          const hesapItem = document.createElement('div');
-          hesapItem.className = 'liste-item';
-          hesapItem.innerHTML = `
-            <div>
-              <strong>Kullanıcı:</strong> ${hesap.kullaniciAdi}<br>
-              <strong>Şifre:</strong> ${hesap.sifre}
-            </div>
-            <div>
-              <button class="sil-btn" onclick="hesapSilOnay('${hesap.kullaniciAdi}')">Sil</button>
-            </div>
-          `;
-          hesaplarListesi.appendChild(hesapItem);
-        });
-      }
+      });
     }
 
     // Skorları yükle (admin paneli için)
     function skorlariYukle() {
-      const kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      let kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
       const skorlarListesi = document.getElementById('skorlarListesi');
       
       // Geçersiz kayıtları temizle
-      const temizlenmisKayitlar = kayitlar.filter(kayit => kayit.kullanici && kayit.kullanici.trim() !== '');
-      localStorage.setItem('namazKayitlari', JSON.stringify(temizlenmisKayitlar));
+      kayitlar = kayitlar.filter(kayit => kayit.kullanici && kayit.kullanici.trim() !== '');
+      localStorage.setItem('namazKayitlari', JSON.stringify(kayitlar));
       
-      if (temizlenmisKayitlar.length === 0) {
+      if (kayitlar.length === 0) {
         skorlarListesi.innerHTML = '<p style="text-align: center; color: #6c757d;">Kayıtlı skor bulunamadı!</p>';
         return;
       }
@@ -1091,7 +1083,7 @@
       
       // Skorları kullanıcıya göre grupla
       const skorGruplari = {};
-      temizlenmisKayitlar.forEach(kayit => {
+      kayitlar.forEach(kayit => {
         if (!skorGruplari[kayit.kullanici]) {
           skorGruplari[kayit.kullanici] = [];
         }
