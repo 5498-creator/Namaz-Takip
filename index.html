@@ -1078,7 +1078,11 @@
       const kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
       const skorlarListesi = document.getElementById('skorlarListesi');
       
-      if (kayitlar.length === 0) {
+      // Geçersiz kayıtları temizle
+      const temizlenmisKayitlar = kayitlar.filter(kayit => kayit.kullanici && kayit.kullanici.trim() !== '');
+      localStorage.setItem('namazKayitlari', JSON.stringify(temizlenmisKayitlar));
+      
+      if (temizlenmisKayitlar.length === 0) {
         skorlarListesi.innerHTML = '<p style="text-align: center; color: #6c757d;">Kayıtlı skor bulunamadı!</p>';
         return;
       }
@@ -1087,7 +1091,7 @@
       
       // Skorları kullanıcıya göre grupla
       const skorGruplari = {};
-      kayitlar.forEach(kayit => {
+      temizlenmisKayitlar.forEach(kayit => {
         if (!skorGruplari[kayit.kullanici]) {
           skorGruplari[kayit.kullanici] = [];
         }
@@ -1125,7 +1129,12 @@
 
     // Tüm skorları yükle (kullanıcılar için)
     function tumSkorlariYukle() {
-      const kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      let kayitlar = JSON.parse(localStorage.getItem('namazKayitlari')) || [];
+      
+      // Geçersiz kayıtları temizle (null veya boş kullanıcı adı olanları)
+      kayitlar = kayitlar.filter(kayit => kayit.kullanici && kayit.kullanici.trim() !== '');
+      localStorage.setItem('namazKayitlari', JSON.stringify(kayitlar));
+      
       const tbody = document.getElementById("skorlar");
       tbody.innerHTML = '';
       
